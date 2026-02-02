@@ -1,5 +1,6 @@
 import Header from './components/Header'
 import Footer from './components/Footer'
+import Login from './pages/Login/Login'
 import { appConfig } from './config/appConfig'
 
 function App() {
@@ -7,8 +8,9 @@ function App() {
   return (
     <>
 
+    <Login />
 
-    <header>
+    {/* <header>
       <Header title={appConfig.name}/>
     </header>
 
@@ -18,7 +20,7 @@ function App() {
 
     <footer>
       <Footer footer={appConfig.version} title={appConfig.name} />
-    </footer>
+    </footer> */}
 
     </>
   )

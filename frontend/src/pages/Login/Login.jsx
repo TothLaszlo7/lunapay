@@ -1,5 +1,5 @@
 import "./Login.css";
-import logo from "../../logo/lunapay-logo-no-bg.png";
+import logo from "../../assets/images/logo/lunapay-logo-no-bg.png";
 
 export default function Login() {
   return (

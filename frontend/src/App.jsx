@@ -3,24 +3,23 @@ import Login from "./pages/Login/Login.jsx";
 import EmailLogin from "./pages/Login/EmailLogin.jsx"
 import DashboardPage from "./pages/Dashboard/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
+import SetupPage from "./pages/Setup/Setup.jsx";
+import { DashboardDataProvider } from "./context/DashboardContext.jsx";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/login/email" element={<EmailLogin />} />
-
-      <Route
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-          <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+    <DashboardDataProvider>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/email" element={<EmailLogin />} />
+        <Route path="/dashboard" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute>} />
+        <Route path="/setup" element={<ProtectedRoute> <SetupPage />
+    </ProtectedRoute>
+  }
+/>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </DashboardDataProvider>
   );
 }

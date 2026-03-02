@@ -1,46 +1,90 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDashboardData } from "../../context/DashboardContext.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function SetupPage() {
   const navigate = useNavigate();
+  const { dashboardData, activePlan, updateSettings, updateActivePlan } =
+    useDashboardData();
+  const currency = dashboardData.settings.currency;
 
-  const { dashboardData, setDashboardData } = useDashboardData();
-
+  
   const [incomeDraft, setIncomeDraft] = useState(
-    dashboardData.budget.incomeAmount
+    dashboardData.settings.monthlyIncome
   );
   const [expensesDraft, setExpensesDraft] = useState(
-    dashboardData.budget.expensesAmount
+    dashboardData.settings.avgMonthlyExpenses
   );
+  const [planNameDraft, setPlanNameDraft] = useState(activePlan.name ?? "");
+  const [categoryDraft, setCategoryDraft] = useState(
+    activePlan.goal.category ?? ""
+  );
+  const [targetDraft, setTargetDraft] = useState(
+    activePlan.goal.targetAmount ?? 0
+  );
+  const [targetDateDraft, setTargetDateDraft] = useState(
+    activePlan.goal.targetDate ?? ""
+  );
+  
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+  if (!activePlan) return;
+  if (isInitialized) return;
+
+  setIncomeDraft(dashboardData.settings.monthlyIncome ?? 0);
+  setExpensesDraft(dashboardData.settings.avgMonthlyExpenses ?? 0);
+
+  setPlanNameDraft(activePlan.name ?? "");
+  setCategoryDraft(activePlan.goal?.category ?? "");
+  setTargetDraft(activePlan.goal?.targetAmount ?? 0);
+  setTargetDateDraft(activePlan.goal?.targetDate ?? "");
+
+  setIsInitialized(true);
+}, [activePlan, dashboardData.settings, isInitialized]);
 
   const savingsDraft = incomeDraft - expensesDraft;
 
-  const updateIncome = (nextIncome) => {
+  function updateIncome(nextIncome) {
     setIncomeDraft(nextIncome);
+    updateSettings({ monthlyIncome: nextIncome });
+  }
 
-    setDashboardData((prev) => ({
-      ...prev,
-      budget: {
-        ...prev.budget,
-        incomeAmount: nextIncome,
-        savingsAmount: nextIncome - expensesDraft,
-      },
-    }));
-  };
-
-  const updateExpenses = (nextExpenses) => {
+  function updateExpenses(nextExpenses) {
     setExpensesDraft(nextExpenses);
+    updateSettings({ avgMonthlyExpenses: nextExpenses });
+  }
 
-    setDashboardData((prev) => ({
-      ...prev,
-      budget: {
-        ...prev.budget,
-        expensesAmount: nextExpenses,
-        savingsAmount: incomeDraft - nextExpenses,
-      },
-    }));
-  };
+  function updatePlanName(nextName) {
+    setPlanNameDraft(nextName);
+    updateActivePlan({ name: nextName });
+  }
+
+  function updateCategory(nextCategory) {
+    setCategoryDraft(nextCategory);
+    updateActivePlan({
+      goal: { category: nextCategory },
+    });
+  }
+
+  function updateTarget(nextTarget) {
+    setTargetDraft(nextTarget);
+    updateActivePlan({
+      goal: { targetAmount: nextTarget },
+    });
+  }
+
+  function updateTargetDate(nextDate) {
+    setTargetDateDraft(nextDate);
+    updateActivePlan({
+      goal: { targetDate: nextDate },
+    });
+  }
+
+  const estimatedMonths =
+    savingsDraft > 0 && targetDraft > 0
+      ? `~${Math.ceil(targetDraft / savingsDraft)} months`
+      : "—";
 
   return (
     <div className="dashboard">
@@ -51,6 +95,22 @@ export default function SetupPage() {
       <main className="dashboard-grid">
         <section className="card">
           <h2>Costs setup</h2>
+
+          <div className="control">
+            <div className="control-label"> Plane name: </div>
+            <input
+              className="input-dark"
+              type="text"
+              value={planNameDraft}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPlanNameDraft(value);
+
+                updateActivePlan({ name: value });
+              }}
+              placeholder="e.g. Summer holiday"
+            />
+          </div>
 
           <div className="control">
             <div className="control-label">Income</div>
@@ -103,34 +163,31 @@ export default function SetupPage() {
           <div className="result-row">
             <span className="label">Savings (auto)</span>
             <span
-              className={`value ${savingsDraft < 0 ? "negative" : savingsDraft > 0 ? "positive" : ""}`}
+              className={`value ${
+                savingsDraft < 0
+                  ? "negative"
+                  : savingsDraft > 0
+                    ? "positive"
+                    : ""
+              }`}
             >
-              {savingsDraft} Ft
+              {savingsDraft} {currency ?? "Ft"}
             </span>
           </div>
         </section>
 
+        {/* GOAL */}
         <section className="card">
           <h2>Target setup</h2>
 
           <div className="row">
             <span>Category</span>
-            <strong>{dashboardData.goal.category || "—"}</strong>
+            <strong>{categoryDraft || "—"}</strong>
           </div>
 
           <select
-            value={dashboardData.goal.category}
-            onChange={(e) => {
-              const value = e.target.value;
-
-              setDashboardData((prev) => ({
-                ...prev,
-                goal: {
-                  ...prev.goal,
-                  category: value,
-                },
-              }));
-            }}
+            value={categoryDraft}
+            onChange={(e) => updateCategory(e.target.value)}
           >
             <option value="">Select category…</option>
             <option value="Holiday">Holiday</option>
@@ -142,60 +199,53 @@ export default function SetupPage() {
             <option value="Other">Other</option>
           </select>
 
-          <div className="row" style={{ marginTop: 12 }}>
-            <span>Target amount</span>
+
+          <div className="control">
+            <div className="control-label">Target date</div>
+            <input
+              className="input-dark"
+              type="date"
+              value={targetDateDraft}
+              onChange={(e) => updateTargetDate(e.target.value)}
+            />
           </div>
 
-          <input
-            type="range"
-            min="0"
-            max="10000000"
-            step="50000"
-            value={dashboardData.goal.targetAmount}
-            onChange={(e) => {
-              const value = Number(e.target.value);
+          <div className="control-row" style={{ marginTop: 8 }}>
+            <input
+              type="range"
+              min="0"
+              max="10000000"
+              step="50000"
+              value={targetDraft}
+              onChange={(e) => updateTarget(Number(e.target.value))}
+            />
+            <input
+              className="input-dark"
+              type="number"
+              min="0"
+              max="10000000"
+              step="50000"
+              value={targetDraft}
+              onChange={(e) => updateTarget(Number(e.target.value))}
+              inputMode="numeric"
+            />
+          </div>
 
-              setDashboardData((prev) => ({
-                ...prev,
-                goal: {
-                  ...prev.goal,
-                  targetAmount: value,
-                },
-              }));
-            }}
-          />
+          <div className="row" style={{ marginTop: 12 }}>
+            <span>Target amount</span>
+            <strong>
+              {targetDraft} {currency ?? "Ft"}
+            </strong>
+          </div>
 
-          <input
-            className="input-dark"
-            type="number"
-            min="0"
-            max="10000000"
-            step="50000"
-            value={dashboardData.goal.targetAmount}
-            onChange={(e) => {
-              const value = Number(e.target.value);
-              setDashboardData((prev) => ({
-                ...prev,
-                goal: {
-                  ...prev.goal,
-                  targetAmount: value,
-                },
-              }));
-            }}
-          />
+          <div className="row" style={{ marginTop: 12 }}>
+            <span>Estimated time</span>
+            <strong>{estimatedMonths}</strong>
+          </div>
 
           <button type="button" onClick={() => navigate("/dashboard")}>
             Save
           </button>
-
-          <div className="row" style={{ marginTop: 12 }}>
-            <span>Estimated time</span>
-            <strong>
-              {savingsDraft > 0 && dashboardData.goal.targetAmount > 0
-                ? `~${Math.ceil(dashboardData.goal.targetAmount / savingsDraft)} months`
-                : "—"}
-            </strong>
-          </div>
         </section>
       </main>
     </div>

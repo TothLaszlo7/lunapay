@@ -375,7 +375,6 @@ input[type="range"]::-moz-range-thumb {
   position: relative;
   overflow: hidden;
   padding: 18px;
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .goal-progress::before {
@@ -389,10 +388,7 @@ input[type="range"]::-moz-range-thumb {
   pointer-events: none;
 }
 
-.goal-progress > * {
-  position: relative;
-  z-index: 1;
-}
+.goal-progress > * { position: relative; z-index: 1; }
 
 .goal-progress-top {
   display: flex;
@@ -401,44 +397,141 @@ input[type="range"]::-moz-range-thumb {
   gap: 16px;
 }
 
+.goal-progress-title { margin: 0; font-size: 14px; opacity: 0.9; }
+.goal-progress-sub { margin-top: 6px; font-size: 12px; opacity: 0.75; }
+
+.goal-progress-amounts { text-align: right; }
+.goal-progress-main { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
+.goal-progress-target { margin-top: 2px; font-size: 13px; opacity: 0.75; }
+
+.goal-progress-bar { margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+.goal-progress-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+.goal-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6a2a, #ffb26a);
+  box-shadow: 0 0 14px rgba(255, 120, 60, 0.35);
+}
+.goal-progress-meta { width: 56px; text-align: right; font-weight: 700; opacity: 0.9; }
+
+.goal-progress-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 10px;
+}
+
+.goal-progress {
+  grid-column: 1 / -1;
+}
+
+.goal-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+}
+
+.status-badge.positive {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.status-badge.negative {
+  background: rgba(255, 77, 79, 0.15);
+  color: #ff4d4f;
+}
+
+.status-badge:not(.positive):not(.negative) {
+  background: rgba(255, 159, 67, 0.15);
+  color: #ff9f43;
+}
+
+/* ===== GoalProgressCard – Fintech polish ===== */
+
+.goal-progress {
+  padding: 22px; /* kicsit több levegő */
+}
+
+.goal-progress-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 26px;
+}
+
 .goal-progress-title {
-  margin: 0;
   font-size: 14px;
-  letter-spacing: 0.3px;
-  opacity: 0.9;
+  letter-spacing: 0.2px;
+  opacity: 0.92;
 }
 
 .goal-progress-sub {
   margin-top: 6px;
   font-size: 12px;
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
+/* Right side: amount + target + verdict */
 .goal-progress-amounts {
   text-align: right;
+  display: grid;
+  gap: 4px;
+  justify-items: end;
 }
 
 .goal-progress-main {
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .goal-progress-target {
-  margin-top: 2px;
   font-size: 13px;
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
+.goal-progress-verdict {
+  margin-top: 6px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  line-height: 1;
+}
+
+/* Bar */
 .goal-progress-bar {
-  margin-top: 16px;
-  display: flex;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
 }
 
 .goal-progress-track {
-  flex: 1;
   height: 10px;
   border-radius: 999px;
   background: rgba(255,255,255,0.10);
@@ -449,22 +542,114 @@ input[type="range"]::-moz-range-thumb {
 .goal-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff6a2a, #ffb26a);
-  box-shadow: 0 0 14px rgba(255, 120, 60, 0.35);
+  background: rgba(127, 140, 255, 0.92);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.25);
 }
 
 .goal-progress-meta {
-  width: 56px;
-  text-align: right;
-  font-weight: 700;
-  opacity: 0.9;
+  font-size: 12px;
+  opacity: 0.78;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.goal-progress-footer {
-  margin-top: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+/* KPI grid */
+.goal-progress-stats {
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255,255,255,0.08);
-  padding-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.goal-progress-stats .muted {
+  font-size: 12px;
+  opacity: 0.70;
+  margin-bottom: 6px;
+}
+
+.goal-progress-stats .kpi-value {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-negative {
+  color: #ff4d4f; /* már nálad is van .negative, de így KPI-n belül célzott */
+}
+
+/* CTA button (scoped) */
+.goal-progress button {
+  margin-top: 12px;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(127,140,255,0.22);
+  color: inherit;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.24);
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.goal-progress button:hover {
+  transform: translateY(-1px);
+  background: rgba(127,140,255,0.28);
+  border-color: rgba(127,140,255,0.38);
+}
+
+.goal-progress button:active {
+  transform: translateY(0px);
+}
+
+/* ===== GoalProgressCard – Minimal Pro Polish ===== */
+
+.goal-progress-main {
+  font-size: 44px;
+  line-height: 1.02;
+  letter-spacing: -0.9px;
+}
+
+.goal-progress-target {
+  opacity: 0.58;
+}
+
+.goal-progress-verdict {
+  padding: 6px 10px;
+  opacity: 0.92;
+}
+
+/* A "0% • vs target" legyen diszkrétebb */
+.goal-progress-meta {
+  font-size: 11px;
+  opacity: 0.62;
+  letter-spacing: 0.2px;
+}
+
+/* KPI értékek egységesek + kicsit "premium" */
+.goal-progress-stats .kpi-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.goal-progress-stats .muted {
+  opacity: 0.62;
+}
+
+/* CTA: minimal, de prémium */
+.goal-progress button {
+  border-radius: 14px;
+  padding: 11px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.26);
+}
+
+.goal-progress button:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.22);
 }

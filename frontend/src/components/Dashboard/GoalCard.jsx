@@ -1,22 +1,27 @@
-export default function GoalCard({ category, targetText, months }) {
+export default function GoalCard({ category, targetAmount, months, currency }) {
+  const monthsText = months > 0 ? `~${months} months` : "—";
+
   return (
     <section className="card">
-      <h2>Aim</h2>
+      <h2>Goal</h2>
 
       <div className="row">
-        <span>Target</span>
+        <span>Category</span>
         <strong>{category || "—"}</strong>
       </div>
 
       <div className="row">
         <span>Desired amount</span>
-        <strong>{targetText}</strong>
+        <strong>
+          {targetAmount} {currency}
+        </strong>
       </div>
 
       <div className="row">
-        <span>Projected time</span>
-        <strong>{months ? `~${months} months` : "—"}</strong>
+        <span>Estimated time</span>
+        <strong>{monthsText}</strong>
       </div>
+
     </section>
   );
 }

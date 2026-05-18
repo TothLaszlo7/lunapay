@@ -7,7 +7,18 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { dashboardData, activePlan, updateActivePlan } = useDashboardData();
+  const {
+    dashboardData,
+    activePlan,
+    isSetupComplete,
+    hasGoalConfigured,
+    updateActivePlan,
+  } = useDashboardData();
+
+  console.log({
+    isSetupComplete,
+    hasGoalConfigured,
+  });
 
   if (!activePlan) {
     return (

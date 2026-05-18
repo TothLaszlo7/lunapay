@@ -105,6 +105,18 @@ export function DashboardDataProvider({ children }) {
     dashboardData.plans.find((p) => p.id === dashboardData.activePlanId) ||
     dashboardData.plans[0];
 
+  const isSetupComplete = Boolean(
+    dashboardData.settings.currency &&
+    Number(dashboardData.settings.monthlyIncome) > 0 &&
+    Number(dashboardData.settings.avgMonthlyExpenses) >= 0
+  );
+
+  const hasGoalConfigured = Boolean(
+    activePlan?.goal?.category &&
+    Number(activePlan?.goal?.targetAmount) > 0 &&
+    activePlan?.goal?.targetDate
+  );
+
   function updateSettings(nextSettingsData) {
     setDashboardData((prev) => {
       return {
@@ -144,6 +156,9 @@ export function DashboardDataProvider({ children }) {
     activePlan,
     updateSettings,
     updateActivePlan,
+    hasLoaded,
+    isSetupComplete,
+    hasGoalConfigured,
   };
 
   return (

@@ -4,9 +4,8 @@ import EmailLogin from "./pages/Login/EmailLogin.jsx";
 import DashboardPage from "./pages/Dashboard/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import SetupPage from "./pages/Setup/Setup.jsx";
-import PlansPage from "./pages/Plans/PlansPage.jsx";
 import NewPlanPage from "./pages/Plans/NewPlanPage.jsx";
-import PlanDetailsPage from "./pages/Plans/PlanDetailsPage.jsx";
+import Header from "./components/Header/Header.jsx";
 import {
   DashboardDataProvider,
   useDashboardData,
@@ -26,6 +25,15 @@ function SetupGate({ children }) {
   return children;
 }
 
+function AppLayout({ children }) {
+  return (
+    <>
+      <Header title="LunaPay" />
+      {children}
+    </>
+  );
+}
+
 export default function App() {
   return (
     <DashboardDataProvider>
@@ -36,26 +44,12 @@ export default function App() {
         <Route path="/login/email" element={<EmailLogin />} />
 
         <Route
-          path="/plans"
-          element={
-            <ProtectedRoute>
-              <PlansPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/plans/new"
           element={
             <ProtectedRoute>
-              <NewPlanPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/plans/:id"
-          element={
-            <ProtectedRoute>
-              <PlanDetailsPage />
+              <AppLayout>
+                <NewPlanPage />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -65,7 +59,9 @@ export default function App() {
           element={
             <ProtectedRoute>
               <SetupGate>
-                <DashboardPage />
+                  <AppLayout>
+                    <DashboardPage />
+                  </AppLayout>
               </SetupGate>
             </ProtectedRoute>
           }
@@ -75,7 +71,9 @@ export default function App() {
           path="/setup"
           element={
             <ProtectedRoute>
-              <SetupPage />
+              <AppLayout>
+                <SetupPage />
+              </AppLayout>
             </ProtectedRoute>
           }
         />

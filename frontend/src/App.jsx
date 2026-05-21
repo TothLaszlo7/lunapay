@@ -7,8 +7,24 @@ import SetupPage from "./pages/Setup/Setup.jsx";
 import PlansPage from "./pages/Plans/PlansPage.jsx";
 import NewPlanPage from "./pages/Plans/NewPlanPage.jsx";
 import PlanDetailsPage from "./pages/Plans/PlanDetailsPage.jsx";
+import {
+  DashboardDataProvider,
+  useDashboardData,
+} from "./context/DashboardContext.jsx";
 
-import { DashboardDataProvider } from "./context/DashboardContext.jsx";
+function SetupGate({ children }) {
+  const { hasLoaded, isSetupComplete } = useDashboardData();
+
+  if (!hasLoaded) {
+    return null;
+  }
+
+  if (!isSetupComplete) {
+    return <Navigate to="/setup" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
   return (
@@ -48,7 +64,9 @@ export default function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <SetupGate>
+                <DashboardPage />
+              </SetupGate>
             </ProtectedRoute>
           }
         />

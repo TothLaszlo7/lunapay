@@ -151,6 +151,18 @@ export function DashboardDataProvider({ children }) {
     });
   }
 
+  function resetActiveGoal() {
+    updateActivePlan({
+      name: "",
+      goal: {
+        category: "",
+        targetAmount: 0,
+        targetDate: "",
+        startDate: "",
+      },
+    });
+  }
+
   const value = {
     dashboardData,
     activePlan,
@@ -159,6 +171,7 @@ export function DashboardDataProvider({ children }) {
     hasLoaded,
     isSetupComplete,
     hasGoalConfigured,
+    resetActiveGoal,
   };
 
   return (

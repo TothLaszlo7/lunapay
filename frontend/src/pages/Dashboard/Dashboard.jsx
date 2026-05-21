@@ -13,6 +13,7 @@ export default function DashboardPage() {
     isSetupComplete,
     hasGoalConfigured,
     updateActivePlan,
+    resetActiveGoal,
   } = useDashboardData();
 
   if (!activePlan) {
@@ -166,6 +167,8 @@ export default function DashboardPage() {
             navigate("/setup");
           }}
         />
+
+        <button onClick={resetActiveGoal}>Reset goal</button>
 
         <BudgetCard
           incomeAmount={income}

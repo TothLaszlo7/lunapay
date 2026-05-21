@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+
   const {
     dashboardData,
     activePlan,
-    isSetupComplete,
     hasGoalConfigured,
     updateActivePlan,
     resetActiveGoal,
@@ -22,6 +22,7 @@ export default function DashboardPage() {
         <header className="dashboard-header">
           <h1>Dashboard</h1>
         </header>
+
         <main className="dashboard-grid">
           <section className="card">
             <h2>Loading…</h2>
@@ -40,6 +41,7 @@ export default function DashboardPage() {
   const category = activePlan.goal?.category ?? "";
   const targetAmount = Number(activePlan.goal?.targetAmount ?? 0);
   const targetDate = activePlan.goal?.targetDate ?? "";
+  const startDate = activePlan.goal?.startDate ?? "";
 
   function monthIndex(date) {
     return date.getFullYear() * 12 + date.getMonth();
@@ -47,20 +49,32 @@ export default function DashboardPage() {
 
   function parseDate(dateString) {
     if (!dateString) return null;
+
     const d = new Date(dateString);
+
     if (Number.isNaN(d.getTime())) return null;
+
     return d;
   }
 
   function roundTo(value, step) {
     if (step <= 0) return value;
+
     return Math.round(value / step) * step;
+  }
+
+  function createTodayString() {
+    const now = new Date();
+
+    return [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0"),
+    ].join("-");
   }
 
   const today = new Date();
   const deadline = parseDate(targetDate);
-
-  const startDate = activePlan.goal?.startDate ?? "";
   const start = parseDate(startDate);
 
   let monthsTotal = 0;
@@ -68,22 +82,36 @@ export default function DashboardPage() {
 
   if (start && deadline) {
     monthsTotal = monthIndex(deadline) - monthIndex(start);
-    if (monthsTotal < 0) monthsTotal = 0;
-    if (monthsTotal === 0 && monthIndex(deadline) >= monthIndex(start))
+
+    if (monthsTotal < 0) {
+      monthsTotal = 0;
+    }
+
+    if (monthsTotal === 0 && monthIndex(deadline) >= monthIndex(start)) {
       monthsTotal = 1;
+    }
 
     monthsElapsed = monthIndex(today) - monthIndex(start);
-    if (monthsElapsed < 0) monthsElapsed = 0;
-    if (monthsElapsed > monthsTotal) monthsElapsed = monthsTotal;
+
+    if (monthsElapsed < 0) {
+      monthsElapsed = 0;
+    }
+
+    if (monthsElapsed > monthsTotal) {
+      monthsElapsed = monthsTotal;
+    }
   }
 
   let monthsLeft = 0;
+
   if (deadline) {
     const diff = monthIndex(deadline) - monthIndex(today);
+
     monthsLeft = diff < 0 ? 0 : diff;
   }
 
   let requiredPerMonth = 0;
+
   if (targetAmount > 0 && monthsTotal > 0) {
     requiredPerMonth = roundTo(targetAmount / monthsTotal, 1000);
   }
@@ -97,6 +125,7 @@ export default function DashboardPage() {
 
   const isFeasible =
     requiredPerMonth > 0 ? baselineSavings >= requiredPerMonth : true;
+
   const timelineVerdict =
     expectedSoFar > 0
       ? savedSoFar >= expectedSoFar
@@ -104,18 +133,15 @@ export default function DashboardPage() {
         : "behind"
       : "notStarted";
 
-  let statusText = "In progress";
-  let statusTone = "";
-
-  const isPlanConfigured =
-    Boolean(category) && targetAmount > 0 && Boolean(targetDate);
-
   const isDeadlinePassed =
     Boolean(deadline) &&
     monthsLeft === 0 &&
     monthIndex(deadline) < monthIndex(today);
 
-  if (isPlanConfigured && isDeadlinePassed) {
+  let statusText = "In progress";
+  let statusTone = "";
+
+  if (hasGoalConfigured && isDeadlinePassed) {
     if (savedSoFar >= targetAmount) {
       statusText = "Success";
       statusTone = "positive";
@@ -126,7 +152,18 @@ export default function DashboardPage() {
   }
 
   const monthsText = monthsLeft > 0 ? `~${monthsLeft} months` : "—";
-  const buttonText = isPlanConfigured ? "Edit plan" : "Start plan";
+
+  function handleEditPlan() {
+    if (!activePlan.goal?.startDate) {
+      updateActivePlan({
+        goal: {
+          startDate: createTodayString(),
+        },
+      });
+    }
+
+    navigate("/plans/new");
+  }
 
   return (
     <div className="dashboard">
@@ -135,40 +172,38 @@ export default function DashboardPage() {
       </header>
 
       <main className="dashboard-grid">
-        <GoalProgressCard
-          planName={planName}
-          category={category}
-          savedSoFar={savedSoFar}
-          targetAmount={targetAmount}
-          monthsText={monthsText}
-          currency={currency}
-          requiredPerMonth={requiredPerMonth}
-          baselineSavings={baselineSavings}
-          statusText={statusText}
-          statusTone={statusTone}
-          buttonText={buttonText}
-          expectedSoFar={expectedSoFar}
-          isFeasible={isFeasible}
-          timelineVerdict={timelineVerdict}
-          onStartPlan={() => {
-            const now = new Date();
-            const todayStr = [
-              now.getFullYear(),
-              String(now.getMonth() + 1).padStart(2, "0"),
-              String(now.getDate()).padStart(2, "0"),
-            ].join("-");
+        {hasGoalConfigured ? (
+          <GoalProgressCard
+            planName={planName}
+            category={category}
+            savedSoFar={savedSoFar}
+            targetAmount={targetAmount}
+            monthsText={monthsText}
+            currency={currency}
+            requiredPerMonth={requiredPerMonth}
+            baselineSavings={baselineSavings}
+            statusText={statusText}
+            statusTone={statusTone}
+            buttonText="Edit plan"
+            expectedSoFar={expectedSoFar}
+            isFeasible={isFeasible}
+            timelineVerdict={timelineVerdict}
+            onStartPlan={handleEditPlan}
+          />
+        ) : (
+          <section className="card goal-progress">
+            <h2>No active goal yet</h2>
 
-            if (!activePlan.goal?.startDate) {
-              updateActivePlan({
-                goal: { startDate: todayStr },
-              });
-            }
+            <p style={{ opacity: 0.8, maxWidth: 720 }}>
+              Create your first savings goal and LunaPay will calculate your
+              timeline automatically.
+            </p>
 
-            navigate("/setup");
-          }}
-        />
-
-        <button onClick={resetActiveGoal}>Reset goal</button>
+            <button type="button" onClick={() => navigate("/plans/new")}>
+              Create New Plan
+            </button>
+          </section>
+        )}
 
         <BudgetCard
           incomeAmount={income}
@@ -177,14 +212,26 @@ export default function DashboardPage() {
           currency={currency}
         />
 
-        <GoalCard
-          category={category}
-          targetAmount={targetAmount}
-          months={monthsLeft}
-          currency={currency}
-        />
+        {hasGoalConfigured && (
+          <GoalCard
+            category={category}
+            targetAmount={targetAmount}
+            months={monthsLeft}
+            currency={currency}
+          />
+        )}
 
         <NextStepsCard />
+
+        {hasGoalConfigured && (
+          <section className="card">
+            <h2>Plan actions</h2>
+
+            <button type="button" onClick={resetActiveGoal}>
+              Reset goal
+            </button>
+          </section>
+        )}
       </main>
     </div>
   );

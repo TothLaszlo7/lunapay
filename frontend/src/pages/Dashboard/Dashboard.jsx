@@ -15,11 +15,6 @@ export default function DashboardPage() {
     updateActivePlan,
   } = useDashboardData();
 
-  console.log({
-    isSetupComplete,
-    hasGoalConfigured,
-  });
-
   if (!activePlan) {
     return (
       <div className="dashboard">
